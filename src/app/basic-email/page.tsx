@@ -28,20 +28,6 @@ export default function BasicEmail() {
         formState: { errors },
     } = useForm<emailInput>();
 
-    // 입력 조건들이 모두 만족하였을때 실행되는 함수
-    const onSubmit: SubmitHandler<emailInput> = async (emailData: object) => {
-        // 서버에 이메일 내용, 파일 데이터 전송
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASIC_API_ADDRESS}`,
-            {
-                method: "POST",
-                body: JSON.stringify({ emailData, attachFile }),
-            }
-        );
-
-        console.log(response);
-    };
-
     // 첨부한 파일을 변수에 저장
     const readUserFile = (event: any) => {
         const fileList = event.target.files[0]; // 사용자가 첨부한 파일
@@ -56,6 +42,20 @@ export default function BasicEmail() {
         };
 
         reader.readAsDataURL(fileList); // 파일을 읽은후 base64로 변환하는 함수
+    };
+
+    // 입력 조건들이 모두 만족하였을때 실행되는 함수
+    const onSubmit: SubmitHandler<emailInput> = async (emailData: object) => {
+        // 서버에 이메일 내용, 파일 데이터 전송
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BASIC_API_ADDRESS}`,
+            {
+                method: "POST",
+                body: JSON.stringify({ emailData, attachFile }),
+            }
+        );
+
+        response.ok ? alert("메일 전송 완료") : alert("메일 전송 오류 발생"); // 전송 완료 확인
     };
 
     return (
