@@ -48,7 +48,7 @@ export default function BasicEmail() {
     const onSubmit: SubmitHandler<emailInput> = async (emailData: object) => {
         // 서버에 이메일 내용, 파일 데이터 전송
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASIC_API_ADDRESS}`,
+            `${process.env.NEXT_PUBLIC_MULTI_API_ADDRESS}`,
             {
                 method: "POST",
                 body: JSON.stringify({ emailData, attachFile }),
