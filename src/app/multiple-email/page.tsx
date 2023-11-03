@@ -20,18 +20,16 @@ type emailInput = {
 export default function MultipleEmail() {
     const [attachFile, setAttachFile] = useState<any>([]); // 사용자가 첨부한 파일 데이터
     const [receiveEmail, setReceiveEmail] = useState<any>([]); // 사용자 다중 이메일 저장
-
     const receiveEmailRef = useRef<any>(null); // 이메일 주소 입력창 값 초기화를 위한 useRef훅 사용
 
-    // form에 편리성을 위한 useForm 사용
+    // M-0 폼데이터 활용을 위한 useForm 라이브러리 적용
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors },
     } = useForm<emailInput>();
 
-    // 이메일 입력칸에 포커스가 풀리면 적어놓은 데이터 저장
+    // M-10 이메일 입력칸에 focus가 풀리면 데이터 저장
     const handleFocusOut = (event: React.FocusEvent<HTMLElement>) => {
         const { value } = event.target as HTMLButtonElement;
 
@@ -51,7 +49,7 @@ export default function MultipleEmail() {
         receiveEmailRef.current.value = null;
     };
 
-    // 다중 메일 허용을 위한 enter, space키 인식
+    // M-20 enter, space키 인식하여 데이터 저장
     const handleOnKeyPress = (event: React.KeyboardEvent) => {
         const { value } = event.target as HTMLButtonElement;
         if (value !== "") {
@@ -74,7 +72,7 @@ export default function MultipleEmail() {
         }
     };
 
-    // 첨부한 파일을 변수에 저장
+    // M-30 첨부한 파일을 변수에 저장
     const readUserFile = (event: any) => {
         const fileList = event.target.files; // 사용자가 첨부한 파일 목록
         if (attachFile.length + fileList.length > 10) {
@@ -103,21 +101,21 @@ export default function MultipleEmail() {
         }
     };
 
-    // 이메일 배열에서 선택데이터 삭제
+    // M-40 이메일 배열에서 선택한 이메일데이터 삭제
     const deleteReceiveEmailChip = (indexNum: number) => {
         const updatedItems = [...receiveEmail];
         updatedItems.splice(indexNum, 1);
         setReceiveEmail(updatedItems);
     };
 
-    // 첨부파일 배열에서 선택 데이터 삭제
+    // M-50 첨부파일 배열에서 선택한 파일데이터 삭제
     const deleteAttachChip = (indexNum: number) => {
         const updatedItems = [...attachFile];
         updatedItems.splice(indexNum, 1);
         setAttachFile(updatedItems);
     };
 
-    // 입력 조건들이 모두 만족하였을때 실행되는 함수
+    // M-60 사용자가 입력한 데이터, 파일데이터를 서버에 전송
     const onSubmit: SubmitHandler<emailInput> = async (emailData: object) => {
         // 이메일 정규식에 적합한 데이터만 배열로 변경
         const emailArray = receiveEmail.reduce(
@@ -136,6 +134,8 @@ export default function MultipleEmail() {
             return;
         }
 
+        const requestAPIURL: any = process.env.NEXT_PUBLIC_MULTI_API_ADDRESS; // API endpoint URL
+
         // lambda로 보낼 body데이터
         const bodyData = JSON.stringify({
             emailData: { ...emailData, receiver: emailArray },
@@ -143,17 +143,18 @@ export default function MultipleEmail() {
         });
 
         // 서버에 이메일 내용, 파일 데이터 전송
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_MULTI_API_ADDRESS}`,
-            {
-                method: "POST",
-                body: bodyData,
-            }
-        );
+        const response = await fetch(requestAPIURL, {
+            method: "POST",
+            body: bodyData,
+        });
+
+        const tmpResponse = await response.json();
+        console.log(tmpResponse);
 
         response.ok ? alert("메일 전송 완료") : alert("메일 전송 오류 발생"); // 전송 완료 확인
     };
 
+    // M-70 사용자에게 보여질 JSX 코드
     return (
         <>
             <main className={styles.container}>

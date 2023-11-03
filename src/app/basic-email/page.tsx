@@ -20,18 +20,17 @@ type emailInput = {
 export default function BasicEmail() {
     const [attachFile, setAttachFile] = useState<any>(); // 사용자가 첨부한 파일 데이터
 
-    // form에 편리성을 위한 useForm 사용
+    // S-10. 폼데이터 활용을 위한 useForm라이브러리적용
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors },
     } = useForm<emailInput>();
 
-    // 첨부한 파일을 변수에 저장
+    // S-20.  첨부한 파일을 변수에 저장
     const readUserFile = (event: any) => {
         const fileList = event.target.files[0]; // 사용자가 첨부한 파일
-        const reader = new FileReader(); // 파일에 데이터를 읽기 위한 생성자입니다
+        const reader = new FileReader(); // 파일에 데이터를 읽기 위한 생성자
 
         // 파일의 정보를 읽고 그 값을 변수에 저장
         reader.onload = (event: any) => {
@@ -44,20 +43,24 @@ export default function BasicEmail() {
         reader.readAsDataURL(fileList); // 파일을 읽은후 base64로 변환하는 함수
     };
 
-    // 입력 조건들이 모두 만족하였을때 실행되는 함수
+    // S-30. 입력된 이메일 정보를 서버로 전송
     const onSubmit: SubmitHandler<emailInput> = async (emailData: object) => {
-        // 서버에 이메일 내용, 파일 데이터 전송
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_MULTI_API_ADDRESS}`,
-            {
-                method: "POST",
-                body: JSON.stringify({ emailData, attachFile }),
-            }
-        );
+        const requestAPIURL: any = process.env.NEXT_PUBLIC_MULTI_API_ADDRESS; // 환경변수에 저장된 API endpoint URL
+
+        // API endpoint에 내용 전송 후 결과값 받음
+        const response = await fetch(requestAPIURL, {
+            method: "POST",
+            body: JSON.stringify({ emailData, attachFile }),
+        });
+
+        let tmpResponse = await response.json();
+
+        console.log("S30-Result:", tmpResponse);
 
         response.ok ? alert("메일 전송 완료") : alert("메일 전송 오류 발생"); // 전송 완료 확인
     };
 
+    // S-40. 최종화면출력 HTML전달
     return (
         <main className={styles.container}>
             <form onSubmit={handleSubmit(onSubmit)}>
